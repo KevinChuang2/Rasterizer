@@ -121,11 +121,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cubes.cpp" />
     <ClCompile Include="edgeFunction.cpp" />
+    <ClCompile Include="flipImage.cpp" />
+    <ClCompile Include="helper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="object_centric_simple_triangle.cpp" />
     <ClCompile Include="OutputFrame.cpp" />
     <ClCompile Include="image_centric_simple_triangle.cpp" />
+    <ClCompile Include="z_buff_triangle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

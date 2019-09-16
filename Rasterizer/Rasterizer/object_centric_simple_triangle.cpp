@@ -13,6 +13,9 @@ struct Triangle {
 	glm::vec3 v0;
 	glm::vec3 v1;
 	glm::vec3 v2;
+	glm::vec3 c0;
+	glm::vec3 c1;
+	glm::vec3 c2;
 };
 void OutputFrame(const std::vector<glm::vec3>& frameBuffer, const char* filename, unsigned int width, unsigned int height);
 float edgeFunction(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c);
@@ -26,10 +29,15 @@ void object_centric_simple_triangle()
 	t0.v0 = TO_RASTER(glm::vec3(0.0, 0.5, 1.0));
 	t0.v1 = TO_RASTER(glm::vec3(-0.5, 0.5, 1.0));
 	t0.v2 = TO_RASTER(glm::vec3(-0.5, -0.5, 1.0));
-
+	t0.c0 = glm::vec3(1.0, 0.0, 0.0);
+	t0.c1 = glm::vec3(0.0, 1.0, 0.0);
+	t0.c2 = glm::vec3(0.0, 0.0, 1.0);
 	t1.v0 = TO_RASTER(glm::vec3(0.0, 0.5, 1.0));
 	t1.v1 = TO_RASTER(glm::vec3(0.0, -0.5, 1.0));
 	t1.v2 = TO_RASTER(glm::vec3(0.5, -0.5, 1.0));
+	t1.c0 = glm::vec3(1.0, 0.0, 0.0);
+	t1.c1 = glm::vec3(0.0, 1.0, 0.0);
+	t1.c2 = glm::vec3(0.0, 0.0, 1.0);
 
 	std::vector<Triangle> triangles;
 	triangles.push_back(t0);
@@ -46,10 +54,10 @@ void object_centric_simple_triangle()
 				// Sample location at	 the center of each pixel
 				glm::vec3 sample = { x + 0.5f, g_scHeight - y + 0.5f, 1.0f };
 
-				float area = edgeFunction(triangle.v0, triangle.v1, triangle.v2); // area of the triangle multiplied by 2 
-				float w1 = edgeFunction(triangle.v2, triangle.v1, sample); // signed area of the triangle v1v2p multiplied by 2 
-				float w2 = edgeFunction(triangle.v0, triangle.v2, sample); // signed area of the triangle v2v0p multiplied by 2 
-				float w0 = edgeFunction(triangle.v1, triangle.v0, sample); // signed area of the triangle v0v1p multiplied by 2 
+				float area = edgeFunction(triangle.v2, triangle.v1, triangle.v0); // area of the triangle multiplied by 2 
+				float w0 = edgeFunction(triangle.v2, triangle.v1, sample); // signed area of the triangle v1v2p multiplied by 2 
+				float w1 = edgeFunction(triangle.v0, triangle.v2, sample); // signed area of the triangle v2v0p multiplied by 2 
+				float w2 = edgeFunction(triangle.v1, triangle.v0, sample); // signed area of the triangle v0v1p multiplied by 2 
 
 													// if point p is inside triangles defined by vertices v0, v1, v2
 				if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
@@ -57,7 +65,11 @@ void object_centric_simple_triangle()
 					w0 /= area;
 					w1 /= area;
 					w2 /= area;
-					frameBuffer[x + y * g_scWidth] = glm::vec3(1, 0, 0);
+					float r = w0 * triangle.c0[0] + w1 * triangle.c1[0] + w2*triangle.c2[0];
+					float g = w0 * triangle.c0[1] + w1 * triangle.c1[1] + w2*triangle.c2[1];
+					float b = w0 * triangle.c0[2] + w1 * triangle.c1[2] + w2*triangle.c2[2];
+					//std::cout << area << std::endl;
+					frameBuffer[x + y * g_scWidth] = glm::vec3(r,g,b);
 				}
 
 			}
@@ -68,12 +80,4 @@ void object_centric_simple_triangle()
 	
 
 	OutputFrame(frameBuffer, "test.ppm", g_scWidth, g_scHeight);
-}
-float edgeFunction(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c)
-{
-	return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
-}
-float edgeFunction(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c)
-{
-	return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
 }
